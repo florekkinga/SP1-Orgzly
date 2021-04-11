@@ -23,6 +23,7 @@ import com.orgzly.android.ui.CommonActivity
 import com.orgzly.android.ui.repo.directory.DirectoryRepoActivity
 import com.orgzly.android.ui.repo.dropbox.DropboxRepoActivity
 import com.orgzly.android.ui.repo.git.GitRepoActivity
+import com.orgzly.android.ui.repo.ssh.SSHRepoActivity
 import com.orgzly.android.ui.repo.webdav.WebdavRepoActivity
 import com.orgzly.android.util.LogUtils
 import com.orgzly.databinding.ActivityReposBinding
@@ -123,6 +124,10 @@ class ReposActivity : CommonActivity(), AdapterView.OnItemClickListener, Activit
         binding.activityReposDirectory.setOnClickListener {
             startRepoActivity(R.id.repos_options_menu_item_new_directory)
         }
+
+        binding.activityReposSsh.setOnClickListener {
+            startRepoActivity(R.id.repos_options_menu_item_new_ssh)
+        }
     }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -187,6 +192,11 @@ class ReposActivity : CommonActivity(), AdapterView.OnItemClickListener, Activit
                 return true
             }
 
+            R.id.repos_options_menu_item_new_ssh -> {
+                startRepoActivity(item.itemId)
+                return true
+            }
+
             android.R.id.home -> {
                 finish()
                 true
@@ -234,6 +244,10 @@ class ReposActivity : CommonActivity(), AdapterView.OnItemClickListener, Activit
             R.id.repos_options_menu_item_new_directory -> {
                 DirectoryRepoActivity.start(this)
                 return
+            }
+
+            R.id.repos_options_menu_item_new_ssh -> {
+                SSHRepoActivity.start(this)
             }
 
             else -> throw IllegalArgumentException("Unknown repo menu item clicked: $id")
