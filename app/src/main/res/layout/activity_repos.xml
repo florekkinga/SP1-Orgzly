@@ -74,6 +74,15 @@
                         android:drawableTop="?attr/ic_folder_open_48dp"
                         android:text="@string/directory" />
 
+                    <Button
+                        android:id="@+id/activity_repos_ssh"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:drawableTop="@drawable/ic_ssh"
+                        android:text="@string/ssh" />
+
                 </LinearLayout>
 
             </ScrollView>
