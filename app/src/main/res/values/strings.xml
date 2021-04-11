@@ -700,4 +700,10 @@
 
     <string name="prepend">Prepend</string>
     <string name="insert_new_note_at_beginning">Insert new note at beginning</string>
+
+    <!-- SSH -->
+    <string name="ssh_hostname_hint">Hostname or IP address</string>
+    <string name="ssh_key_optional">Load SSH Public Key (optional)</string>
+    <string name="ssh_directory_hint">Directory path (e.g. "/home/user/Orgzly")</string>
+    <string name="ssh">SSH Connection</string>
 </resources>
