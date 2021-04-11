@@ -35,6 +35,10 @@
                 android:id="@+id/repos_options_menu_item_new_directory"
                 app:showAsAction="ifRoom"
                 android:title="@string/directory"/>
+            <item
+                android:id="@+id/repos_options_menu_item_new_ssh"
+                app:showAsAction="ifRoom"
+                android:title="@string/ssh"/>
         </menu>
     </item>
 </menu>
