@@ -3,6 +3,8 @@ package com.orgzly.android.ui.repo.ssh
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.databinding.DataBindingUtil
 import com.orgzly.R
 import com.orgzly.android.App
@@ -44,6 +46,31 @@ class SSHRepoActivity : CommonActivity() {
                     .putExtra(ARG_REPO_ID, repoId)
 
             activity.startActivity(intent)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
+
+        menuInflater.inflate(R.menu.done, menu)
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.done -> {
+//                saveAndFinish()
+                true
+            }
+
+            android.R.id.home -> {
+                finish()
+                true
+            }
+
+            else ->
+                super.onOptionsItemSelected(item)
         }
     }
 }
