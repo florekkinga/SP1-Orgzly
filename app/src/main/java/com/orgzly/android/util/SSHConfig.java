@@ -1,10 +1,10 @@
 package com.orgzly.android.util;
 
-protected class SSHConfig {
-    protected String user = "";
-    protected String host = "";
-    protected String pwd = "";
-    protected Int port = 22;
+public class SSHConfig {
+    private String user = "";
+    private String host = "";
+    private String pwd = "";
+    private int port = 22;
 
     public SSHConfig(String username, String hostname, String password) {
         user = username;
@@ -12,28 +12,28 @@ protected class SSHConfig {
         pwd = password;
     }
 
-    public getUsername() {
-        return user;
+    public String getUsername() {
+        return this.user;
     }
-    public setUsername(String newUsername) {
-        user = newUsername;
+    public void setUsername(String newUsername) {
+        this.user = newUsername;
     }
-    public getHostname() {
-        return host;
+    public String getHostname() {
+        return this.host;
     }
-    public setHostname(String newHostname) {
-        host = newHostname;
+    public void setHostname(String newHostname) {
+        this.host = newHostname;
     }
-    public getPassword() {
-        return pwd;
+    public String getPassword() {
+        return this.pwd;
     }
-    public setPassword(String newPassword) {
-        pwd = newPassword;
+    public void setPassword(String newPassword) {
+        this.pwd = newPassword;
     }
-    public getPort() {
-        return port;
+    public int getPort() {
+        return this.port;
     }
-    public setPort(Int newPort) {
-        port = newPort;
+    public void setPort(int newPort) {
+        this.port = newPort;
     }
 }

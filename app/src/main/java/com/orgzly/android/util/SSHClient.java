@@ -6,16 +6,16 @@ public class SSHClient {
     private SSHConfig authConfig;
 
     public SSHClient(String username, String hostname, String password) {
-        authConfig = new SSHConfig(username, hostname, password)
+        authConfig = new SSHConfig(username, hostname, password);
     }
 
     public Channel connectSFTP() throws JSchException, SftpException {
         JSch ssh = new JSch();
-        Session session = ssh.getSession(authConfig.user, authConfig.host, authConfig.port);
+        Session session = ssh.getSession(authConfig.getUsername(), authConfig.getHostname(), authConfig.getPort());
         java.util.Properties config = new java.util.Properties();
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
-        session.setPassword(authConfig.pwd);
+        session.setPassword(authConfig.getPassword());
 
         session.connect();
         Channel channel = session.openChannel("sftp");
@@ -24,7 +24,7 @@ public class SSHClient {
     }
 
     public void disconnectSFTP(Channel channel, Session session) throws JSchException, SftpException {
-             channel.disconnect();
-             session.disconnect();
+        channel.disconnect();
+        session.disconnect();
     }
 }
