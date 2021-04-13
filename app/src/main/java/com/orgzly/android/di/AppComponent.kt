@@ -25,6 +25,7 @@ import com.orgzly.android.ui.repo.BrowserActivity
 import com.orgzly.android.ui.repo.directory.DirectoryRepoActivity
 import com.orgzly.android.ui.repo.dropbox.DropboxRepoActivity
 import com.orgzly.android.ui.repo.git.GitRepoActivity
+import com.orgzly.android.ui.repo.ssh.SSHRepoActivity
 import com.orgzly.android.ui.repo.webdav.WebdavRepoActivity
 import com.orgzly.android.ui.repos.ReposActivity
 import com.orgzly.android.ui.savedsearch.SavedSearchFragment
@@ -54,6 +55,7 @@ interface AppComponent {
     fun inject(arg: DirectoryRepoActivity)
     fun inject(arg: WebdavRepoActivity)
     fun inject(arg: GitRepoActivity)
+    fun inject(arg: SSHRepoActivity)
     fun inject(arg: BrowserActivity)
     fun inject(arg: SettingsActivity)
     fun inject(arg: ShareActivity)
