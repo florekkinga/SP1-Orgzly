@@ -11,24 +11,26 @@ import com.orgzly.android.ui.repo.RepoViewModel
 class SSHRepoViewModel(
         dataRepository: DataRepository,
         override var repoId: Long
-) : RepoViewModel(dataRepository, repoId){
+) : RepoViewModel(dataRepository, repoId) {
+
+    var sshKey: MutableLiveData<String?> = MutableLiveData(null)
 
     sealed class ConnectionResult {
-        data class InProgress(val msg: Int): ConnectionResult()
-        data class Success(val msg: String): ConnectionResult()
-        data class Error(val msg: Any): ConnectionResult()
+        data class InProgress(val msg: Int) : ConnectionResult()
+        data class Success(val msg: Int) : ConnectionResult()
+        data class Error(val msg: Any) : ConnectionResult()
     }
 
-    private val connectionTestStatus: MutableLiveData<SSHRepoViewModel.ConnectionResult> = MutableLiveData()
+    val connectionTestStatus: MutableLiveData<SSHRepoViewModel.ConnectionResult> = MutableLiveData()
 
-    fun testConnection(uriString: String, username: String, password: String) {
+    fun testConnection(uriString: String, username: String, password: String, sshKey: String?) {
         App.EXECUTORS.networkIO().execute {
             try {
                 connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.InProgress(R.string.connecting))
 
                 // SSHRepo.testConnection(uriString, username, password)
 
-                connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.Success("Connected!"))
+                connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.Success(R.string.connection_successful))
 
             } catch (e: Exception) {
                 e.printStackTrace()
