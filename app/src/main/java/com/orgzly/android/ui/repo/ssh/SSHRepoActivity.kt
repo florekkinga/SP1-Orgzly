@@ -1,25 +1,32 @@
 package com.orgzly.android.ui.repo.ssh
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.orgzly.R
 import com.orgzly.android.App
 import com.orgzly.android.repos.RepoFactory
+import com.orgzly.android.repos.RepoType
 import com.orgzly.android.repos.SSHRepo
 import com.orgzly.android.repos.WebdavRepo
 import com.orgzly.android.ui.CommonActivity
 import com.orgzly.android.ui.repo.RepoViewModel
 import com.orgzly.android.ui.repo.directory.DirectoryRepoActivity
+import com.orgzly.android.ui.repo.webdav.WebdavRepoActivity
 import com.orgzly.android.ui.repo.webdav.WebdavRepoViewModel
 import com.orgzly.android.ui.util.ActivityUtils
+import com.orgzly.android.util.UriUtils
 import com.orgzly.databinding.ActivityRepoSshBinding
+import com.orgzly.databinding.DialogCertificatesBinding
 import javax.inject.Inject
 
 class SSHRepoActivity : CommonActivity() {
@@ -33,9 +40,9 @@ class SSHRepoActivity : CommonActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         App.appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setupActionBar(R.string.ssh)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_repo_ssh)
+        setupActionBar(R.string.ssh)
         binding.activityRepoSshTestButton.setOnClickListener { testConnection() }
 
         val repoId = intent.getLongExtra(ARG_REPO_ID, 0)
@@ -96,6 +103,7 @@ class SSHRepoActivity : CommonActivity() {
 //                binding.activityRepoSshHostname.setText(repoWithProps.props[SSHRepo.HOSTNAME_PREF_KEY])
 //                binding.activityRepoSshUsername.setText(repoWithProps.props[SSHRepo.USERNAME_PREF_KEY])
 //                binding.activityRepoSshPassword.setText(repoWithProps.props[SSHRepo.PASSWORD_PREF_KEY])
+//                binding.activityRepoSshPassword.setText(repoWithProps.props[SSHRepo.DIRECTORY_PREF_KEY])
 //                viewModel.sshKey.value = repoWithProps.props[SSHRepo.SSH_KEY_PREF_KEY]
                 // TODO: to implement above properties in SSHRepo
             }
@@ -128,10 +136,118 @@ class SSHRepoActivity : CommonActivity() {
     }
 
     private fun saveAndFinish() {
-        TODO("Not yet implemented")
+        if(isInputValid()){
+            val uriString = getUrl()
+            val username = getUsername()
+            val password = getPassword()
+            val hostname = getHostname()
+            val directory = getDirectory()
+            val sshKey = getSSHKey()
+
+            val props = mutableMapOf("" to "")
+//            TODO: to niżej musi być w SSHRepo
+//            val props = mutableMapOf(
+//                    USERNAME_PREF_KEY to username,
+//                    PASSWORD_PREF_KEY to password,
+//                    HOSTNAME_PREF_KEY to hostname,
+//                    DIRECTORY_PREF_KEY to directory
+//            )
+
+            if(sshKey != null) {
+    //            props[SSH_KEY_PREF_KEY] = ssh_key
+            }
+
+            viewModel.saveRepo(RepoType.SSH, uriString, props)
+
+            // TODO: tu mozna zrobić jeszcze walidację URL, tak jak w WebDav
+        }
     }
 
-    fun editCertificates(view: View) {}
+    fun editSSHKey(view: View) {
+        val dialogBinding = DialogCertificatesBinding.inflate(layoutInflater).apply {
+            certificates.setText(viewModel.sshKey.value)
+            certificates.hint = "-----BEGIN SSH KEY-----"
+        }
+
+        alertDialog = AlertDialog.Builder(this)
+                .setTitle("SSH KEY")
+                .setPositiveButton(R.string.set) { _, _ ->
+                    viewModel.sshKey.value = dialogBinding.certificates.text.toString()
+                }
+                .setNeutralButton(R.string.clear) { _, _ ->
+                    viewModel.sshKey.value = null
+                }
+                .setNegativeButton(R.string.cancel) { _, _ ->
+                    // Cancel
+                }
+                .setView(dialogBinding.root)
+                .show()
+                .apply {
+                    window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                }
+    }
+
+
+    private fun getSSHKey(): String? {
+        return viewModel.sshKey.value
+    }
+
+    private fun getPassword(): String {
+        return binding.activityRepoSshPassword.text.toString().trim{it <= ' '}
+    }
+
+    private fun getUsername(): String {
+        return binding.activityRepoSshUsername.text.toString().trim{it <= ' '}
+    }
+
+    private fun getUrl(): String {
+        // tu trzeba będzie to jakoś połączyć hostname + directory ?, lub hostname + username ?
+        val hostname = getHostname()
+        val directory = getDirectory()
+        return "ssh:/$hostname$directory"
+    }
+
+    private fun isInputValid(): Boolean {
+        val username = getUsername()
+        val password = getPassword()
+        val hostname = getHostname()
+        val directory = getDirectory()
+
+        binding.activityRepoSshUsernameLayout.error = when {
+            TextUtils.isEmpty(username) -> getString(R.string.can_not_be_empty)
+            else -> null
+        }
+
+        binding.activityRepoSshPasswordLayout.error = when {
+            TextUtils.isEmpty(password) -> getString(R.string.can_not_be_empty)
+            else -> null
+        }
+
+        binding.activityRepoSshHostnameLayout.error = when {
+            TextUtils.isEmpty(hostname) -> getString(R.string.can_not_be_empty)
+//            !SSHRepoActivity.SSH_SCHEME_REGEX.matches(hostname) -> getString(R.string.invalid_url)
+//            UriUtils.containsUser(hostname) -> getString(R.string.credentials_in_url_not_supported)
+            else -> null
+        }
+
+        binding.activityRepoSshDirectoryLayout.error = when {
+            TextUtils.isEmpty(directory) -> getString(R.string.can_not_be_empty)
+            else -> null
+        }
+
+        return binding.activityRepoSshUsernameLayout.error == null
+                && binding.activityRepoSshPasswordLayout.error == null
+                && binding.activityRepoSshHostnameLayout.error == null
+                && binding.activityRepoSshDirectoryLayout.error == null
+    }
+
+    private fun getHostname(): String {
+        return binding.activityRepoSshHostname.text.toString().trim{it <= ' '}
+    }
+
+    private fun getDirectory(): String {
+        return binding.activityRepoSshDirectory.text.toString().trim{it <= ' '}
+    }
 
     private fun testConnection() {
         ActivityUtils.closeSoftKeyboard(this)
@@ -139,32 +255,18 @@ class SSHRepoActivity : CommonActivity() {
             return
         }
 
-        val uriString = getUrl()
         val username = getUsername()
         val password = getPassword()
+        val hostname = getHostname()
+        val directory = getDirectory()
+        val sshKey = getSSHKey()
 
-        viewModel.testConnection(uriString, username, password)
-    }
-
-    private fun getPassword(): String {
-        TODO("Not yet implemented")
-    }
-
-    private fun getUsername(): String {
-        TODO("Not yet implemented")
-    }
-
-    private fun getUrl(): String {
-        TODO("Not yet implemented")
-    }
-
-    private fun isInputValid(): Boolean {
-        TODO("Not yet implemented")
+        viewModel.testConnection(username, password, hostname, directory, sshKey)
     }
 
     companion object {
-        private val TAG = SSHRepoActivity::class.java.name
         private const val ARG_REPO_ID = "repo_id"
+        private val SSH_SCHEME_REGEX = Regex("")
 
         @JvmStatic
         @JvmOverloads

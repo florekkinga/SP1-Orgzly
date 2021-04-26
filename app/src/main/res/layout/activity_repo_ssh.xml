@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_between_content_areas"
                     android:layout_marginBottom="@dimen/space_between_content_areas"
-                    android:onClick="editCertificates"
+                    android:onClick="editSSHKey"
                     android:text="@string/ssh_key_optional" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -89,7 +89,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/ssh_directory_hint"
-                        android:inputType="textPassword" />
+                        android:inputType="text" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 

@@ -23,12 +23,12 @@ class SSHRepoViewModel(
 
     val connectionTestStatus: MutableLiveData<SSHRepoViewModel.ConnectionResult> = MutableLiveData()
 
-    fun testConnection(uriString: String, username: String, password: String, sshKey: String?) {
+    fun testConnection(username: String, password: String, hostname: String, directory: String, sshKey: String?) {
         App.EXECUTORS.networkIO().execute {
             try {
                 connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.InProgress(R.string.connecting))
 
-                // SSHRepo.testConnection(uriString, username, password)
+                SSHRepo.testConnection(username, password, hostname, directory)
 
                 connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.Success(R.string.connection_successful))
 
