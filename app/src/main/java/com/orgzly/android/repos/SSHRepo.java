@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class SSHRepo implements SyncRepo{
+public class SSHRepo implements SyncRepo {
 
     // implementacja podobna do WebdavRepo
     @Override
@@ -46,6 +46,10 @@ public class SSHRepo implements SyncRepo{
 
     @Override
     public void delete(Uri uri) throws IOException {
+
+    }
+
+    public static void testConnection(String username, String password, String hostname, String directory) throws IOException {
 
     }
 }
