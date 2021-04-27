@@ -35,12 +35,14 @@ class ListWidgetService : RemoteViewsService() {
         super.onCreate()
     }
 
-    override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
+    override fun onGetViewFactory(intent: Intent): ListWidgetViewsFactory? {
         if (BuildConfig.LOG_DEBUG) LogUtils.d(TAG)
 
-        return ListWidgetViewsFactory(
+        return intent.getStringExtra(AppIntent.EXTRA_QUERY_STRING)?.let {
+            ListWidgetViewsFactory(
                 applicationContext,
-                intent.getStringExtra(AppIntent.EXTRA_QUERY_STRING))
+                    it)
+        }
     }
 
     private sealed class WidgetEntry(open val id: Long) {

@@ -33,6 +33,9 @@ class RepoFactory @Inject constructor(
             type == RepoType.GIT.id && BuildConfig.IS_GIT_ENABLED ->
                 GitRepo.getInstance(repoWithProps, context)
 
+            type == RepoType.SSH.id ->
+                SSHRepo.getInstance(repoWithProps)
+
             else ->
                 throw IllegalArgumentException("Unknown type or disabled repo $repoWithProps")
         }
