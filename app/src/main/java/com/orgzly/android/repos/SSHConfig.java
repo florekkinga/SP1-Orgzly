@@ -1,4 +1,4 @@
-package com.orgzly.android.util;
+package com.orgzly.android.repos;
 
 public class SSHConfig {
     private String user = "";

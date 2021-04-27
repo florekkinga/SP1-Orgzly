@@ -1,4 +1,4 @@
-package com.orgzly.android.util;
+package com.orgzly.android.repos;
 
 import com.jcraft.jsch.*;
 
@@ -23,11 +23,13 @@ public class SSHClient {
             session.connect();
             channel = (ChannelSftp) session.openChannel("sftp");
             channel.connect();
+            System.out.println("CONNECTED");
             return true;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
-        return false;
     }
 
     public void disconnectSFTP() throws JSchException, SftpException {

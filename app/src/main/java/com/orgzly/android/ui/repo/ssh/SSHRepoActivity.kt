@@ -16,15 +16,13 @@ import com.orgzly.R
 import com.orgzly.android.App
 import com.orgzly.android.repos.RepoFactory
 import com.orgzly.android.repos.RepoType
-import com.orgzly.android.repos.SSHRepo
-import com.orgzly.android.repos.WebdavRepo
+import com.orgzly.android.repos.SSHRepo.Companion.DIRECTORY_PREF_KEY
+import com.orgzly.android.repos.SSHRepo.Companion.HOSTNAME_PREF_KEY
+import com.orgzly.android.repos.SSHRepo.Companion.PASSWORD_PREF_KEY
+import com.orgzly.android.repos.SSHRepo.Companion.SSH_KEY_PREF_KEY
+import com.orgzly.android.repos.SSHRepo.Companion.USERNAME_PREF_KEY
 import com.orgzly.android.ui.CommonActivity
-import com.orgzly.android.ui.repo.RepoViewModel
-import com.orgzly.android.ui.repo.directory.DirectoryRepoActivity
-import com.orgzly.android.ui.repo.webdav.WebdavRepoActivity
-import com.orgzly.android.ui.repo.webdav.WebdavRepoViewModel
 import com.orgzly.android.ui.util.ActivityUtils
-import com.orgzly.android.util.UriUtils
 import com.orgzly.databinding.ActivityRepoSshBinding
 import com.orgzly.databinding.DialogCertificatesBinding
 import javax.inject.Inject
@@ -100,11 +98,11 @@ class SSHRepoActivity : CommonActivity() {
 
         if (viewModel.repoId != 0L) { // Editing existing repository
             viewModel.loadRepoProperties()?.let { repoWithProps ->
-//                binding.activityRepoSshHostname.setText(repoWithProps.props[SSHRepo.HOSTNAME_PREF_KEY])
-//                binding.activityRepoSshUsername.setText(repoWithProps.props[SSHRepo.USERNAME_PREF_KEY])
-//                binding.activityRepoSshPassword.setText(repoWithProps.props[SSHRepo.PASSWORD_PREF_KEY])
-//                binding.activityRepoSshPassword.setText(repoWithProps.props[SSHRepo.DIRECTORY_PREF_KEY])
-//                viewModel.sshKey.value = repoWithProps.props[SSHRepo.SSH_KEY_PREF_KEY]
+                binding.activityRepoSshHostname.setText(repoWithProps.props[HOSTNAME_PREF_KEY])
+                binding.activityRepoSshUsername.setText(repoWithProps.props[USERNAME_PREF_KEY])
+                binding.activityRepoSshPassword.setText(repoWithProps.props[PASSWORD_PREF_KEY])
+                binding.activityRepoSshPassword.setText(repoWithProps.props[DIRECTORY_PREF_KEY])
+                viewModel.sshKey.value = repoWithProps.props[SSH_KEY_PREF_KEY]
                 // TODO: to implement above properties in SSHRepo
             }
         }
@@ -144,22 +142,26 @@ class SSHRepoActivity : CommonActivity() {
             val directory = getDirectory()
             val sshKey = getSSHKey()
 
-            val props = mutableMapOf("" to "")
+            //val props = mutableMapOf("" to "")
 //            TODO: to niżej musi być w SSHRepo
-//            val props = mutableMapOf(
-//                    USERNAME_PREF_KEY to username,
-//                    PASSWORD_PREF_KEY to password,
-//                    HOSTNAME_PREF_KEY to hostname,
-//                    DIRECTORY_PREF_KEY to directory
-//            )
+            val props = mutableMapOf(
+                    USERNAME_PREF_KEY to username,
+                    PASSWORD_PREF_KEY to password,
+                    HOSTNAME_PREF_KEY to hostname,
+                    DIRECTORY_PREF_KEY to directory
+            )
 
             if(sshKey != null) {
-    //            props[SSH_KEY_PREF_KEY] = ssh_key
+                props[SSH_KEY_PREF_KEY] = sshKey
             }
 
             viewModel.saveRepo(RepoType.SSH, uriString, props)
-
             // TODO: tu mozna zrobić jeszcze walidację URL, tak jak w WebDav
+
+            // Ponizszy fragment sluzy do sprawdzenia czy polaczenie udaje sie nawiazac,
+            // TODO: Obsluga AsyncTask w klasie SSHClient!
+//            val testConnectionFromSSHRepo = SSHRepo(1, Uri.EMPTY, username, password, hostname, directory)
+//            testConnectionFromSSHRepo.callSSHTest()
         }
     }
 
