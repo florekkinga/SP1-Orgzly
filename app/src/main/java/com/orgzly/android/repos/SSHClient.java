@@ -1,5 +1,8 @@
 package com.orgzly.android.repos;
 
+import android.annotation.SuppressLint;
+import android.os.AsyncTask;
+
 import com.jcraft.jsch.*;
 
 public class SSHClient {
@@ -11,30 +14,44 @@ public class SSHClient {
         authConfig = new SSHConfig(username, hostname, password);
     }
 
-    public boolean connectSFTP() throws JSchException, SftpException {
-        try {
-            JSch ssh = new JSch();
-            session = ssh.getSession(authConfig.getUsername(), authConfig.getHostname(), authConfig.getPort());
-            java.util.Properties config = new java.util.Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-            session.setPassword(authConfig.getPassword());
+    @SuppressLint("StaticFieldLeak")
+    public void connectSFTP() throws JSchException, SftpException {
+        new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... unused) {
+                try {
+                    JSch ssh = new JSch();
+                    session = ssh.getSession(authConfig.getUsername(), authConfig.getHostname(), authConfig.getPort());
+                    java.util.Properties config = new java.util.Properties();
+                    config.put("StrictHostKeyChecking", "no");
+                    session.setConfig(config);
+                    session.setPassword(authConfig.getPassword());
 
-            session.connect();
-            channel = (ChannelSftp) session.openChannel("sftp");
-            channel.connect();
-            System.out.println("CONNECTED");
-            return true;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+                    session.connect();
+                    channel = (ChannelSftp) session.openChannel("sftp");
+                    channel.connect();
+                    System.out.println("CONNECTED");
+
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+
+                }
+                return null;
+            }
+            protected void onPostExecute(Void unused) {}
+        }.execute();
     }
 
+    @SuppressLint("StaticFieldLeak")
     public void disconnectSFTP() throws JSchException, SftpException {
-        channel.disconnect();
-        session.disconnect();
+        new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... unused) {
+                channel.disconnect();
+                session.disconnect();
+                return null;
+            }
+            protected void onPostExecute(Void unused) {}
+        }.execute();
     }
 
     public void uploadFile(String localFilePath, String fileName, String repoPath) throws JSchException, SftpException {

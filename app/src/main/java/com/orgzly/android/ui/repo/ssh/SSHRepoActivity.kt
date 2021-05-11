@@ -3,6 +3,7 @@ package com.orgzly.android.ui.repo.ssh
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
@@ -16,6 +17,7 @@ import com.orgzly.R
 import com.orgzly.android.App
 import com.orgzly.android.repos.RepoFactory
 import com.orgzly.android.repos.RepoType
+import com.orgzly.android.repos.SSHRepo
 import com.orgzly.android.repos.SSHRepo.Companion.DIRECTORY_PREF_KEY
 import com.orgzly.android.repos.SSHRepo.Companion.HOSTNAME_PREF_KEY
 import com.orgzly.android.repos.SSHRepo.Companion.PASSWORD_PREF_KEY
@@ -160,8 +162,8 @@ class SSHRepoActivity : CommonActivity() {
 
             // Ponizszy fragment sluzy do sprawdzenia czy polaczenie udaje sie nawiazac,
             // TODO: Obsluga AsyncTask w klasie SSHClient!
-//            val testConnectionFromSSHRepo = SSHRepo(1, Uri.EMPTY, username, password, hostname, directory)
-//            testConnectionFromSSHRepo.callSSHTest()
+            val testConnectionFromSSHRepo = SSHRepo(1, Uri.EMPTY, username, password, hostname, directory)
+            testConnectionFromSSHRepo.callSSHTest()
         }
     }
 
