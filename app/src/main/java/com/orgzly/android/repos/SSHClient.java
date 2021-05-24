@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 
 import com.jcraft.jsch.*;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +66,7 @@ public class SSHClient {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void uploadFile(String localFilePath, String fileName, String repoPath) {
+    public void uploadFile(InputStream localFilePath, String fileName, String repoPath) {
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
                 try {
@@ -84,7 +86,7 @@ public class SSHClient {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void downloadFile(String fileName, String localRepoPath) {
+    public void downloadFile(String fileName, OutputStream localRepoPath) {
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
                 try {
