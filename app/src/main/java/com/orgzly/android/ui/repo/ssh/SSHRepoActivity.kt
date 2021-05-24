@@ -17,7 +17,6 @@ import com.orgzly.R
 import com.orgzly.android.App
 import com.orgzly.android.repos.RepoFactory
 import com.orgzly.android.repos.RepoType
-import com.orgzly.android.repos.SSHRepo
 import com.orgzly.android.repos.SSHRepo.Companion.DIRECTORY_PREF_KEY
 import com.orgzly.android.repos.SSHRepo.Companion.HOSTNAME_PREF_KEY
 import com.orgzly.android.repos.SSHRepo.Companion.PASSWORD_PREF_KEY
@@ -108,6 +107,8 @@ class SSHRepoActivity : CommonActivity() {
                 // TODO: to implement above properties in SSHRepo
             }
         }
+
+        println(baseContext.cacheDir)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -158,12 +159,6 @@ class SSHRepoActivity : CommonActivity() {
             }
 
             viewModel.saveRepo(RepoType.SSH, uriString, props)
-            // TODO: tu mozna zrobić jeszcze walidację URL, tak jak w WebDav
-
-            // Ponizszy fragment sluzy do sprawdzenia czy polaczenie udaje sie nawiazac,
-            // TODO: Obsluga AsyncTask w klasie SSHClient!
-            val testConnectionFromSSHRepo = SSHRepo(1, Uri.EMPTY, username, password, hostname, directory)
-            testConnectionFromSSHRepo.callSSHTest()
         }
     }
 
