@@ -282,6 +282,9 @@ class ReposActivity : CommonActivity(), AdapterView.OnItemClickListener, Activit
 
             RepoType.GIT ->
                 GitRepoActivity.start(this, repoEntity.id)
+
+            RepoType.SSH ->
+                SSHRepoActivity.start(this, repoEntity.id)
         }
     }
 
