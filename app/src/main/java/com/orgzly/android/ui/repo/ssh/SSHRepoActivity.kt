@@ -3,13 +3,15 @@ package com.orgzly.android.ui.repo.ssh
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -26,7 +28,10 @@ import com.orgzly.android.ui.CommonActivity
 import com.orgzly.android.ui.util.ActivityUtils
 import com.orgzly.databinding.ActivityRepoSshBinding
 import com.orgzly.databinding.DialogCertificatesBinding
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
+
 
 class SSHRepoActivity : CommonActivity() {
     private lateinit var binding: ActivityRepoSshBinding
@@ -209,15 +214,18 @@ class SSHRepoActivity : CommonActivity() {
         val password = getPassword()
         val hostname = getHostname()
         val directory = getDirectory()
+        val key = getSSHKey()
 
         binding.activityRepoSshUsernameLayout.error = when {
             TextUtils.isEmpty(username) -> getString(R.string.can_not_be_empty)
             else -> null
         }
 
-        binding.activityRepoSshPasswordLayout.error = when {
-            TextUtils.isEmpty(password) -> getString(R.string.can_not_be_empty)
-            else -> null
+        if (key.isNullOrEmpty()) {
+            binding.activityRepoSshPasswordLayout.error = when {
+                TextUtils.isEmpty(password) -> getString(R.string.can_not_be_empty)
+                else -> null
+            }
         }
 
         binding.activityRepoSshHostnameLayout.error = when {

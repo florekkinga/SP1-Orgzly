@@ -1,8 +1,10 @@
 package com.orgzly.android.repos
 
 import android.net.Uri
+import com.orgzly.android.util.UriUtils
 import org.joda.time.LocalDateTime
 import java.io.*
+import java.net.URI
 
 
 class SSHRepo(
@@ -15,8 +17,16 @@ class SSHRepo(
         val key: String? = null,
 ) : SyncRepo {
 
-    private val sshClient = SSHClient(username, hostname, password, directory).apply {
+    private val sshClient = client(key).apply {
         connectSFTP()
+    }
+
+    private fun client(key: String?): SSHClient {
+        return if (key.isNullOrEmpty()) {
+            SSHClient(username, hostname, password, directory)
+        } else {
+            SSHClient(username, hostname, key, directory, 22)
+        }
     }
 
     override fun isConnectionRequired(): Boolean {
@@ -59,13 +69,14 @@ class SSHRepo(
     override fun retrieveBook(fileName: String, destination: File): VersionedRook? {
         val dst: OutputStream = FileOutputStream(destination)
         sshClient.downloadFile(fileName, dst)
-        return VersionedRook(repoId, RepoType.SSH, uri, Uri.withAppendedPath(uri, fileName),fileName,1)
+        println(destination.path)
+        return VersionedRook(repoId, RepoType.SSH, uri, Uri.parse(uri.toString()+fileName),fileName,1)
     }
 
     override fun storeBook(file: File, fileName: String): VersionedRook? {
         val src: InputStream = FileInputStream(file)
         sshClient.uploadFile(src, fileName, directory)
-        return VersionedRook(repoId, RepoType.SSH, uri, Uri.withAppendedPath(uri, fileName),fileName,1)
+        return VersionedRook(repoId, RepoType.SSH, Uri.parse(uri.toString()+fileName), Uri.parse(uri.toString()+fileName) ,fileName,1)
     }
 
     @Throws(IOException::class)
@@ -82,11 +93,20 @@ class SSHRepo(
     }
 
     override fun renameBook(from: Uri, name: String): VersionedRook? {
-        return null
+        val last = this.uri.toString().length
+        val oldFileName = from.toString().substring(last)
+        val newFileName = UriUtils.getUriForNewName(from, name).toString().substring(last)
+        sshClient.renameFile(directory,oldFileName, newFileName)
+        return VersionedRook(repoId,
+                            RepoType.SSH,
+                UriUtils.getUriForNewName(from, name),UriUtils.getUriForNewName(from, name),name,1)
     }
 
 
     override fun delete(uri: Uri) {
+        val last = this.uri.toString().length
+        val fileName = uri.toString().substring(last)
+        sshClient.removeFile(directory+fileName)
     }
 
     companion object {

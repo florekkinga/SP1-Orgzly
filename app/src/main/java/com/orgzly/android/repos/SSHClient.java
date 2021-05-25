@@ -2,13 +2,25 @@ package com.orgzly.android.repos;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import com.jcraft.jsch.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -18,10 +30,17 @@ public class SSHClient {
     private ChannelSftp channel;
     private Session session;
     private String directory;
+    private String key;
     public static Set<String> fileNames = new TreeSet<>();
 
     public SSHClient(String username, String hostname, String password, String dir) {
         authConfig = new SSHConfig(username, hostname, password);
+        this.directory = dir;
+    }
+
+    public SSHClient(String username, String hostname, String key, String dir, int stream) {
+        this.authConfig = new SSHConfig(username, hostname);
+        this.key = key;
         this.directory = dir;
     }
 
@@ -32,11 +51,15 @@ public class SSHClient {
                 try {
                     JSch ssh = new JSch();
                     session = ssh.getSession(authConfig.getUsername(), authConfig.getHostname(), authConfig.getPort());
-                    java.util.Properties config = new java.util.Properties();
+                    Properties config = new Properties();
                     config.put("StrictHostKeyChecking", "no");
                     session.setConfig(config);
-                    session.setPassword(authConfig.getPassword());
-
+                    if (key == null) {
+                        session.setPassword(authConfig.getPassword());
+                    } else {
+                        ssh.addIdentity(authConfig.getUsername(),key.getBytes(),null,"".getBytes());
+                        session.setConfig("PreferredAuthentications", "publickey,keyboard-interactive,password");
+                    }
                     session.connect();
                     channel = (ChannelSftp) session.openChannel("sftp");
                     channel.connect();
@@ -102,16 +125,39 @@ public class SSHClient {
         }.execute();
     }
 
-    public void removeFile(String remotePath) throws SftpException {
-        connectSFTP();
-        channel.rm(remotePath);
-        disconnectSFTP();
+    @SuppressLint("StaticFieldLeak")
+    public void removeFile(String remotePath) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                connectSFTP();
+                try {
+                    channel.rm(remotePath);
+                } catch (SftpException e) {
+                    e.printStackTrace();
+                }
+                disconnectSFTP();
+                return null;
+            }
+        }.execute();
     }
 
-    public void renameFile(String remoteRepoPath, String oldFileName, String newFileName) throws JSchException, SftpException {
-        connectSFTP();
-        channel.rename(remoteRepoPath + oldFileName, remoteRepoPath + newFileName);
-        disconnectSFTP();
+    @SuppressLint("StaticFieldLeak")
+    public void renameFile(String remoteRepoPath, String oldFileName, String newFileName) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                connectSFTP();
+                try {
+                    channel.rename(remoteRepoPath + oldFileName, remoteRepoPath + newFileName);
+                } catch (SftpException e) {
+                    e.printStackTrace();
+                }
+                disconnectSFTP();
+                return null;
+            }
+        }.execute();
+
     }
 
     @SuppressLint("StaticFieldLeak")
