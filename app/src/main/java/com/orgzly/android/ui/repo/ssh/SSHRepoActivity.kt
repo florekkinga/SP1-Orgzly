@@ -102,9 +102,8 @@ class SSHRepoActivity : CommonActivity() {
                 binding.activityRepoSshHostname.setText(repoWithProps.props[HOSTNAME_PREF_KEY])
                 binding.activityRepoSshUsername.setText(repoWithProps.props[USERNAME_PREF_KEY])
                 binding.activityRepoSshPassword.setText(repoWithProps.props[PASSWORD_PREF_KEY])
-                binding.activityRepoSshPassword.setText(repoWithProps.props[DIRECTORY_PREF_KEY])
+                binding.activityRepoSshDirectory.setText(repoWithProps.props[DIRECTORY_PREF_KEY])
                 viewModel.sshKey.value = repoWithProps.props[SSH_KEY_PREF_KEY]
-                // TODO: to implement above properties in SSHRepo
             }
         }
 
@@ -145,7 +144,6 @@ class SSHRepoActivity : CommonActivity() {
             val directory = getDirectory()
             val sshKey = getSSHKey()
 
-            //val props = mutableMapOf("" to "")
 //            TODO: to niżej musi być w SSHRepo
             val props = mutableMapOf(
                     USERNAME_PREF_KEY to username,
