@@ -3,15 +3,12 @@ package com.orgzly.android.ui.repo.ssh
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -28,8 +25,6 @@ import com.orgzly.android.ui.CommonActivity
 import com.orgzly.android.ui.util.ActivityUtils
 import com.orgzly.databinding.ActivityRepoSshBinding
 import com.orgzly.databinding.DialogCertificatesBinding
-import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
 
 
@@ -102,7 +97,7 @@ class SSHRepoActivity : CommonActivity() {
             })
         })
 
-        if (viewModel.repoId != 0L) { // Editing existing repository
+        if (viewModel.repoId != 0L) {
             viewModel.loadRepoProperties()?.let { repoWithProps ->
                 binding.activityRepoSshHostname.setText(repoWithProps.props[HOSTNAME_PREF_KEY])
                 binding.activityRepoSshUsername.setText(repoWithProps.props[USERNAME_PREF_KEY])
@@ -149,7 +144,6 @@ class SSHRepoActivity : CommonActivity() {
             val directory = getDirectory()
             val sshKey = getSSHKey()
 
-//            TODO: to niżej musi być w SSHRepo
             val props = mutableMapOf(
                     USERNAME_PREF_KEY to username,
                     PASSWORD_PREF_KEY to password,
@@ -203,7 +197,6 @@ class SSHRepoActivity : CommonActivity() {
     }
 
     private fun getUrl(): String {
-        // tu trzeba będzie to jakoś połączyć hostname + directory ?, lub hostname + username ?
         val hostname = getHostname()
         val directory = getDirectory()
         return "ssh:/$hostname$directory"
@@ -230,8 +223,6 @@ class SSHRepoActivity : CommonActivity() {
 
         binding.activityRepoSshHostnameLayout.error = when {
             TextUtils.isEmpty(hostname) -> getString(R.string.can_not_be_empty)
-//            !SSHRepoActivity.SSH_SCHEME_REGEX.matches(hostname) -> getString(R.string.invalid_url)
-//            UriUtils.containsUser(hostname) -> getString(R.string.credentials_in_url_not_supported)
             else -> null
         }
 
@@ -271,7 +262,6 @@ class SSHRepoActivity : CommonActivity() {
 
     companion object {
         private const val ARG_REPO_ID = "repo_id"
-        private val SSH_SCHEME_REGEX = Regex("")
 
         @JvmStatic
         @JvmOverloads

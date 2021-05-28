@@ -1,10 +1,9 @@
 package com.orgzly.android.repos
 
 import android.net.Uri
+import android.os.SystemClock
 import com.orgzly.android.util.UriUtils
-import org.joda.time.LocalDateTime
 import java.io.*
-import java.net.URI
 
 
 class SSHRepo(
@@ -17,9 +16,7 @@ class SSHRepo(
         val key: String? = null,
 ) : SyncRepo {
 
-    private val sshClient = client(key).apply {
-        connectSFTP()
-    }
+    private val sshClient = client(key)
 
     private fun client(key: String?): SSHClient {
         return if (key.isNullOrEmpty()) {
@@ -42,54 +39,34 @@ class SSHRepo(
     }
 
     override fun getBooks(): MutableList<VersionedRook>? {
-        var result: MutableList<VersionedRook> = ArrayList()
-
-//        if (SSHClient.fileNames.isNotEmpty()) {
-//            val currentDateTime = LocalDateTime.now().toString()
-//            SSHClient.fileNames.forEach { str ->
-////                result.add(VersionedRook(
-////                        repoId, RepoType.SSH,uri,Uri.parse(uri.toString()+str),str+currentDateTime,DateTimeUtils.currentTimeMillis()
-////                ))
-//                sshClient.downloadFile(str, "/data/user/0/com.orgzly/files/")
-//                val file = File("/data/user/0/com.orgzly/files/"+str)
-//                println(str)
-//                if (file.exists()) {
-//                    val uriFile = Uri.parse(uri.toString()+str)
-//                    result.add(VersionedRook(
-//                        repoId, RepoType.SSH,uriFile,uriFile,
-//                            "1",
-//                            111))
-//                }
-//            }
-//        }
+        val result: MutableList<VersionedRook> = ArrayList()
+        sshClient.getFiles(directory)
+        SystemClock.sleep(3000)
+        for (fileName in SSHClient.fileNames) {
+            val rook = VersionedRook(repoId,
+                                    RepoType.SSH,
+                                    uri,
+                                    Uri.parse(uri.toString()+fileName),
+                                    fileName+System.currentTimeMillis(),
+                                    System.currentTimeMillis())
+            result.add(rook)
+        }
         return result
     }
 
-
     override fun retrieveBook(fileName: String, destination: File): VersionedRook? {
-        val dst: OutputStream = FileOutputStream(destination)
-        sshClient.downloadFile(fileName, dst)
-        println(destination.path)
-        return VersionedRook(repoId, RepoType.SSH, uri, Uri.parse(uri.toString()+fileName),fileName,1)
+        sshClient.downloadFile(fileName, destination).run {
+            SystemClock.sleep(5000)
+        }
+        return VersionedRook(repoId, RepoType.SSH, Uri.fromFile(destination),
+                Uri.parse(uri.toString()+fileName),fileName + System.currentTimeMillis(),System.currentTimeMillis())
     }
 
     override fun storeBook(file: File, fileName: String): VersionedRook? {
         val src: InputStream = FileInputStream(file)
         sshClient.uploadFile(src, fileName, directory)
-        return VersionedRook(repoId, RepoType.SSH, Uri.parse(uri.toString()+fileName), Uri.parse(uri.toString()+fileName) ,fileName,1)
-    }
-
-    @Throws(IOException::class)
-    fun copy(src: File?, dst: File?) {
-        FileInputStream(src).use { `in` ->
-            FileOutputStream(dst).use { out ->
-                val buf = ByteArray(1024)
-                var len: Int
-                while (`in`.read(buf).also { len = it } > 0) {
-                    out.write(buf, 0, len)
-                }
-            }
-        }
+        return VersionedRook(repoId, RepoType.SSH, uri, Uri.parse(uri.toString()+fileName) ,
+                fileName + System.currentTimeMillis(),System.currentTimeMillis())
     }
 
     override fun renameBook(from: Uri, name: String): VersionedRook? {
@@ -97,9 +74,8 @@ class SSHRepo(
         val oldFileName = from.toString().substring(last)
         val newFileName = UriUtils.getUriForNewName(from, name).toString().substring(last)
         sshClient.renameFile(directory,oldFileName, newFileName)
-        return VersionedRook(repoId,
-                            RepoType.SSH,
-                UriUtils.getUriForNewName(from, name),UriUtils.getUriForNewName(from, name),name,1)
+        return VersionedRook(repoId, RepoType.SSH,
+                uri,UriUtils.getUriForNewName(from, name),name+System.currentTimeMillis(),System.currentTimeMillis())
     }
 
 
@@ -152,6 +128,13 @@ class SSHRepo(
             return SSHRepo(id, uri, username, password, hostname, directory, key)
         }
 
-        fun testConnection(username: String?, password: String?, hostname: String?, directory: String?) {}
+        fun testConnection(username: String?, password: String?, hostname: String?, directory: String?, sshKey: String?) {
+            val testClient: SSHClient = if (sshKey.isNullOrEmpty()) {
+                SSHClient(username, hostname, password, directory)
+            } else {
+                SSHClient(username, hostname, sshKey, directory, 22)
+            }
+            testClient.testConnection()
+        }
     }
 }
