@@ -1,6 +1,5 @@
 package com.orgzly.android.ui.repo.ssh
 
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import com.orgzly.R
 import com.orgzly.android.App
@@ -28,7 +27,7 @@ class SSHRepoViewModel(
             try {
                 connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.InProgress(R.string.connecting))
 
-                SSHRepo.testConnection(username, password, hostname, directory)
+                SSHRepo.testConnection(username, password, hostname, directory, sshKey)
 
                 connectionTestStatus.postValue(SSHRepoViewModel.ConnectionResult.Success(R.string.connection_successful))
 

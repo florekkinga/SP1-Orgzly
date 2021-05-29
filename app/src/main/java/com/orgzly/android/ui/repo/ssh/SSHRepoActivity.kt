@@ -27,6 +27,7 @@ import com.orgzly.databinding.ActivityRepoSshBinding
 import com.orgzly.databinding.DialogCertificatesBinding
 import javax.inject.Inject
 
+
 class SSHRepoActivity : CommonActivity() {
     private lateinit var binding: ActivityRepoSshBinding
 
@@ -96,7 +97,7 @@ class SSHRepoActivity : CommonActivity() {
             })
         })
 
-        if (viewModel.repoId != 0L) { // Editing existing repository
+        if (viewModel.repoId != 0L) {
             viewModel.loadRepoProperties()?.let { repoWithProps ->
                 binding.activityRepoSshHostname.setText(repoWithProps.props[HOSTNAME_PREF_KEY])
                 binding.activityRepoSshUsername.setText(repoWithProps.props[USERNAME_PREF_KEY])
@@ -105,6 +106,8 @@ class SSHRepoActivity : CommonActivity() {
                 viewModel.sshKey.value = repoWithProps.props[SSH_KEY_PREF_KEY]
             }
         }
+
+        println(baseContext.cacheDir)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -141,7 +144,6 @@ class SSHRepoActivity : CommonActivity() {
             val directory = getDirectory()
             val sshKey = getSSHKey()
 
-//            TODO: to niżej musi być w SSHRepo
             val props = mutableMapOf(
                     USERNAME_PREF_KEY to username,
                     PASSWORD_PREF_KEY to password,
@@ -154,12 +156,6 @@ class SSHRepoActivity : CommonActivity() {
             }
 
             viewModel.saveRepo(RepoType.SSH, uriString, props)
-            // TODO: tu mozna zrobić jeszcze walidację URL, tak jak w WebDav
-
-            // Ponizszy fragment sluzy do sprawdzenia czy polaczenie udaje sie nawiazac,
-            // TODO: Obsluga AsyncTask w klasie SSHClient!
-//            val testConnectionFromSSHRepo = SSHRepo(1, Uri.EMPTY, username, password, hostname, directory)
-//            testConnectionFromSSHRepo.callSSHTest()
         }
     }
 
@@ -201,7 +197,6 @@ class SSHRepoActivity : CommonActivity() {
     }
 
     private fun getUrl(): String {
-        // tu trzeba będzie to jakoś połączyć hostname + directory ?, lub hostname + username ?
         val hostname = getHostname()
         val directory = getDirectory()
         return "ssh:/$hostname$directory"
@@ -212,21 +207,22 @@ class SSHRepoActivity : CommonActivity() {
         val password = getPassword()
         val hostname = getHostname()
         val directory = getDirectory()
+        val key = getSSHKey()
 
         binding.activityRepoSshUsernameLayout.error = when {
             TextUtils.isEmpty(username) -> getString(R.string.can_not_be_empty)
             else -> null
         }
 
-        binding.activityRepoSshPasswordLayout.error = when {
-            TextUtils.isEmpty(password) -> getString(R.string.can_not_be_empty)
-            else -> null
+        if (key.isNullOrEmpty()) {
+            binding.activityRepoSshPasswordLayout.error = when {
+                TextUtils.isEmpty(password) -> getString(R.string.can_not_be_empty)
+                else -> null
+            }
         }
 
         binding.activityRepoSshHostnameLayout.error = when {
             TextUtils.isEmpty(hostname) -> getString(R.string.can_not_be_empty)
-//            !SSHRepoActivity.SSH_SCHEME_REGEX.matches(hostname) -> getString(R.string.invalid_url)
-//            UriUtils.containsUser(hostname) -> getString(R.string.credentials_in_url_not_supported)
             else -> null
         }
 
@@ -266,7 +262,6 @@ class SSHRepoActivity : CommonActivity() {
 
     companion object {
         private const val ARG_REPO_ID = "repo_id"
-        private val SSH_SCHEME_REGEX = Regex("")
 
         @JvmStatic
         @JvmOverloads

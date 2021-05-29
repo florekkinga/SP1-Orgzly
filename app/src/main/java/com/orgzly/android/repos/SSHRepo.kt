@@ -1,7 +1,10 @@
 package com.orgzly.android.repos
 
 import android.net.Uri
-import java.io.File
+import android.os.SystemClock
+import com.orgzly.android.util.UriUtils
+import java.io.*
+
 
 class SSHRepo(
         private val repoId: Long,
@@ -10,8 +13,18 @@ class SSHRepo(
         val password: String?,
         val hostname: String,
         val directory: String,
-        val key: String? = null
+        val key: String? = null,
 ) : SyncRepo {
+
+    private val sshClient = client(key)
+
+    private fun client(key: String?): SSHClient {
+        return if (key.isNullOrEmpty()) {
+            SSHClient(username, hostname, password, directory)
+        } else {
+            SSHClient(username, hostname, key, directory, 22)
+        }
+    }
 
     override fun isConnectionRequired(): Boolean {
         return true
@@ -25,28 +38,51 @@ class SSHRepo(
         return uri
     }
 
-
     override fun getBooks(): MutableList<VersionedRook>? {
-        val url = uri.toUrl()
-        return null
+        val result: MutableList<VersionedRook> = ArrayList()
+        sshClient.getFiles(directory)
+        SystemClock.sleep(3000)
+        for (fileName in SSHClient.fileNames) {
+            val rook = VersionedRook(repoId,
+                                    RepoType.SSH,
+                                    uri,
+                                    Uri.parse(uri.toString()+fileName),
+                                    fileName+System.currentTimeMillis(),
+                                    System.currentTimeMillis())
+            result.add(rook)
+        }
+        return result
     }
 
-
     override fun retrieveBook(fileName: String, destination: File): VersionedRook? {
-        return null
+        sshClient.downloadFile(fileName, destination).run {
+            SystemClock.sleep(5000)
+        }
+        return VersionedRook(repoId, RepoType.SSH, Uri.fromFile(destination),
+                Uri.parse(uri.toString()+fileName),fileName + System.currentTimeMillis(),System.currentTimeMillis())
     }
 
     override fun storeBook(file: File, fileName: String): VersionedRook? {
-        return null
+        val src: InputStream = FileInputStream(file)
+        sshClient.uploadFile(src, fileName, directory)
+        return VersionedRook(repoId, RepoType.SSH, uri, Uri.parse(uri.toString()+fileName) ,
+                fileName + System.currentTimeMillis(),System.currentTimeMillis())
     }
 
-
     override fun renameBook(from: Uri, name: String): VersionedRook? {
-        return null
+        val last = this.uri.toString().length
+        val oldFileName = from.toString().substring(last)
+        val newFileName = UriUtils.getUriForNewName(from, name).toString().substring(last)
+        sshClient.renameFile(directory,oldFileName, newFileName)
+        return VersionedRook(repoId, RepoType.SSH,
+                uri,UriUtils.getUriForNewName(from, name),name+System.currentTimeMillis(),System.currentTimeMillis())
     }
 
 
     override fun delete(uri: Uri) {
+        val last = this.uri.toString().length
+        val fileName = uri.toString().substring(last)
+        sshClient.removeFile(directory+fileName)
     }
 
     companion object {
@@ -92,17 +128,13 @@ class SSHRepo(
             return SSHRepo(id, uri, username, password, hostname, directory, key)
         }
 
-        fun testConnection(username: String?, password: String?, hostname: String?, directory: String?) {}
-    }
-
-    // DLA CELOW TESTOWYCH, Do usuniecia
-    fun callSSHTest() {
-        val client = SSHClient(username, hostname, password)
-        client.connectSFTP()
-    }
-
-    // REGEX DO POPRAWY
-    private fun Uri.toUrl(): String {
-        return this.toString().replace("^(?:ssh://)".toRegex(), "http$1")
+        fun testConnection(username: String?, password: String?, hostname: String?, directory: String?, sshKey: String?) {
+            val testClient: SSHClient = if (sshKey.isNullOrEmpty()) {
+                SSHClient(username, hostname, password, directory)
+            } else {
+                SSHClient(username, hostname, sshKey, directory, 22)
+            }
+            testClient.testConnection()
+        }
     }
 }

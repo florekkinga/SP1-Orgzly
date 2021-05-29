@@ -12,6 +12,11 @@ public class SSHConfig {
         pwd = password;
     }
 
+    public SSHConfig(String username, String hostname) {
+        this.user = username;
+        this.host = hostname;
+    }
+
     public String getUsername() {
         return this.user;
     }
