@@ -70,7 +70,7 @@ public class SSHClient {
         }
     }
 
-    public void disconnectSFTP()  {
+    public void disconnectSFTP() {
         new Thread(() -> {
             try {
                 channel.disconnect();

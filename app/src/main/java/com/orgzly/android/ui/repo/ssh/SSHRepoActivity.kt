@@ -106,8 +106,6 @@ class SSHRepoActivity : CommonActivity() {
                 viewModel.sshKey.value = repoWithProps.props[SSH_KEY_PREF_KEY]
             }
         }
-
-        println(baseContext.cacheDir)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -242,7 +240,11 @@ class SSHRepoActivity : CommonActivity() {
     }
 
     private fun getDirectory(): String {
-        return binding.activityRepoSshDirectory.text.toString().trim{it <= ' '}
+        return if (!binding.activityRepoSshDirectory.text.toString().trim{it <= ' '}.endsWith('/')) {
+            binding.activityRepoSshDirectory.text.toString().trim{it <= ' '} + '/'
+        } else {
+            binding.activityRepoSshDirectory.text.toString().trim { it <= ' ' }
+        }
     }
 
     private fun testConnection() {
