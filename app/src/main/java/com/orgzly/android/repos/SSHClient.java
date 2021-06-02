@@ -1,7 +1,5 @@
 package com.orgzly.android.repos;
 
-import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import com.jcraft.jsch.*;
 import java.io.File;
 import java.io.FileNotFoundException;
