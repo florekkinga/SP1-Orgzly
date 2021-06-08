@@ -9,6 +9,7 @@ import com.orgzly.android.db.entity.BookView;
 import com.orgzly.android.db.entity.Repo;
 import com.orgzly.android.repos.RepoType;
 import com.orgzly.android.repos.RepoWithProps;
+import com.orgzly.android.repos.SSHRepo;
 import com.orgzly.android.repos.SyncRepo;
 import com.orgzly.android.repos.VersionedRook;
 import com.orgzly.android.sync.BookNamesake;
@@ -148,5 +149,10 @@ public class TestUtils {
         }
 
         return null;
+    }
+
+    public SyncRepo getSshInstance() {
+        return new SSHRepo(7,Uri.parse("ssh:/78.11.11.189/home/"),"gjn","123",
+                "78.11.11.189","/home/", null);
     }
 }
