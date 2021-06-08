@@ -240,7 +240,8 @@ class SSHRepoActivity : CommonActivity() {
     }
 
     private fun getDirectory(): String {
-        return if (!binding.activityRepoSshDirectory.text.toString().trim{it <= ' '}.endsWith('/')) {
+        return if (!binding.activityRepoSshDirectory.text.toString().trim{it <= ' '}.endsWith('/')
+                && binding.activityRepoSshDirectory.text.toString().trim{it <= ' '}.isNotEmpty()) {
             binding.activityRepoSshDirectory.text.toString().trim{it <= ' '} + '/'
         } else {
             binding.activityRepoSshDirectory.text.toString().trim { it <= ' ' }
